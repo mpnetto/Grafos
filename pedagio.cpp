@@ -1,38 +1,48 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-#define MC 50
+#define MC 51
+#define BRANCO 0
+#define CINZA 1
 
-vector<int> vec;
-vector<int>::iterator it;
+int cor[MC];
+int dist[MC];
 
-void contaCidades(int grafo[][MC], int nCidades, int cidadeAtual, int nPedagios)
+
+void BFS(int grafo[][MC], int nCidades, int cidadeAtual, int nPedagios)
 {
-   if (nPedagios == 0){ 
-   	vec.push_back(cidadeAtual); 
-   	return;
-   } 
- 
-   for (int i = 0; i < nCidades; i++)
-       if (grafo[cidadeAtual][i] == 1)  
-           contaCidades(grafo,nCidades, i, nPedagios-1);
- 	
-   return;
-}
+	queue<int> fila;
 
-void imprimecidades()
-{
-	for (it = vec.begin(); it != vec.end()-1; ++it)
+	cor[cidadeAtual] = CINZA;
+
+	fila.push(cidadeAtual);
+
+	
+	while(!fila.empty())
 	{
-		cout << *it << endl;
+		int cidade = fila.front();
+		fila.pop();
+
+		for (int i = 1; i<=nCidades; ++i){
+			if(grafo[cidade][i]==1 && cor[i]==BRANCO && nPedagios > dist[cidade])
+			{
+				dist[i] = dist[cidade]+1;
+				fila.push(i);
+				cor[i] = CINZA;
+			}
+		}
+
 	}
+
+	return;
 }
 
 int main(){
-	
 
 	int nCidades, nEstradas, cidadeAtual, nPedagios;
 
@@ -40,20 +50,23 @@ int main(){
 
 	int n = 0;
 
-	
 	while(true)
 	{
 		cin >> nCidades >> nEstradas >> cidadeAtual >> nPedagios;
 
+		if ((nCidades + nEstradas + cidadeAtual + nPedagios) == 0)
+			break;
+
 		int grafo[MC][MC];
 
-		vec.clear();
-
-		for (int i = 0; i < nCidades; ++i)
-			for (int j = 0; j < nCidades; ++j)
+		for (int i = 1; i <= nCidades; ++i)
+		{
+			cor[i] = BRANCO;
+			dist[i] = 0;
+			for (int j = 1; j <= nCidades; ++j)
 				grafo[i][j] = 0;
+		}
 
-	
 		for (int i = 0; i < nEstradas; ++i)
 		{
 			cin >> x >> y;
@@ -64,12 +77,18 @@ int main(){
 
 		cout << "Teste " << ++n << endl;
 		
-		contaCidades(grafo, nCidades, cidadeAtual, nPedagios);
+		BFS(grafo, nCidades, cidadeAtual, nPedagios);
 
-		imprimecidades();
+		cor[cidadeAtual] = 0;
 
-		if (nCidades== nEstradas == cidadeAtual == nPedagios==0)
-			break;
+		for (int i = 1; i <= nCidades; ++i)
+		{
+			if(cor[i] == 1)
+			{
+				cout << i << " ";
+			}
+		}
+		cout << endl << endl;
 
 	}
 
